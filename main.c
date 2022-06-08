@@ -9,21 +9,21 @@
 #include "modeChanger.h"
 
 // STEPS: 
-// 1. Enter Raw Mode
+// 1. Enter Raw Mode -- DONE!
 // 2. Handle Raw I/O
 // 3. Create Text Viewer Window/Screen
 // 4. Create the editor (main features)
 
 int main(int argc, char *argv[]){
-	enableRawMode();
+	enterRawMode();
 	while (1) {
-		char c = '\0';
-		if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) 		throwErrorMsg("read not working in main loop");
+		char ch = '\0';
+		if (read(STDIN_FILENO, &ch, 1) == -1 && errno != EAGAIN) 		throwErrorMsg("read not working in main loop");
 		
-		if (iscntrl(c)) printf("%d\r\n", c);
-		else printf("%d ('%c')\r\n", c, c);
+		if (iscntrl(ch)) printf("%d\r\n", ch);
+		else printf("%d ('%c')\r\n", ch, ch);
     
-		if (c == 'q') break;
+		if (ch == 'q') break;
 	}
 
 	
