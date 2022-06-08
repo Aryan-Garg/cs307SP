@@ -74,7 +74,7 @@ int main() {
   enterRawMode();
 
   while (1) {
-    RefreshScreen();
+    RefreshTerminalScreen();
     ProcessKeypress();
   }
 
