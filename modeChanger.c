@@ -7,24 +7,25 @@
 
 #include "errorHandler.h"
 
-struct termios orig_termios;
+struct termios orig;
 
-void disableRawMode() {
-  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) throwErrorMsg("tcsetattr");
+void quitRawMode() {
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig) == -1) throwErrorMsg("tcsetattr");
 }
 
-void enableRawMode() {
-	if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) 
-		throwErrorMsg("tcgetattr");
-	atexit(disableRawMode);
-	struct termios raw = orig_termios;
+void enterRawMode() {
+	if (tcgetattr(STDIN_FILENO, &orig) == -1) throwErrorMsg("tcgetattr");
+	atexit(quitRawMode);
+	
+	struct termios orig_copy = orig;
+	
 	// Turn off:
-	raw.c_lflag &= ~(ECHO);
-	raw.c_lflag &= ~(ICANON); // canonical mode 
-	raw.c_lflag &= ~(ISIG); // ctrl-c, ctrl-z
-	raw.c_lflag &= ~(ICRNL); // carriage return -> report
-	raw.c_oflag &= ~(OPOST); // output processing -> report
-	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
-	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) 
+	orig_copy.c_lflag &= ~(ECHO);
+	orig_copy.c_lflag &= ~(ICANON); // canonical mode 
+	orig_copy.c_lflag &= ~(ISIG); // ctrl-c, ctrl-z
+	orig_copy.c_lflag &= ~(ICRNL); // carriage return -> report
+	orig_copy.c_oflag &= ~(OPOST); // output processing -> report
+	
+	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_copy) == -1) 
 		throwErrorMsg("tcsetattr");
 }
