@@ -17,12 +17,15 @@ void throwErrorMsg(char *strstr) {
 }
 
 void quitRawMode() {
-  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig) == -1) throwErrorMsg("tcsetattr");
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig) == -1) 
+    throwErrorMsg("tcsetattr");
 }
 
 void enterRawMode() {
-	if (tcgetattr(STDIN_FILENO, &orig) == -1) throwErrorMsg("tcgetattr");
-	atexit(quitRawMode);
+	if (tcgetattr(STDIN_FILENO, &orig) == -1) 
+        throwErrorMsg("tcgetattr");
+	
+    atexit(quitRawMode);
 	
 	struct termios orig_copy = orig;
 	
@@ -37,23 +40,42 @@ void enterRawMode() {
 		throwErrorMsg("tcsetattr");
 }
 
+
+char ReadKey() {
+  int nread;
+  char c;
+  while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+    if (nread == -1 && errno != EAGAIN) 
+        throwErrorMsg("read");
+  }
+  return c;
+}
+
+// output function 
+void RefreshTerminalScreen() {
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
+}
+
+
+// input function
+void ProcessKeypress() {
+  char c = ReadKey();
+
+  switch (c) {
+    case ctrl_key('q'):
+      exit(0);
+      break;
+  }
+}
+
+
 int main() {
   enterRawMode();
 
   while (1) {
-    char c = '\0';
-    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) 
-        throwErrorMsg("read");
-
-    if (iscntrl(c)) {
-      printf("%d\r\n", c);
-
-    } else {
-      printf("%d ('%c')\r\n", c, c);
-    }
-
-    if (c == ctrl_key('q')) 
-        break;
+    RefreshScreen();
+    ProcessKeypress();
   }
 
   return 0;
