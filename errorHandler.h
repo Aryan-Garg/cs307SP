@@ -1,0 +1,1 @@
+void throwErrorMsg(char *strstr);
