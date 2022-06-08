@@ -1,2 +1,2 @@
-void disableRawMode();
-void enableRawMode();
+void quitRawMode();
+void enterRawMode();
