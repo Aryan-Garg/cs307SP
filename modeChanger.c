@@ -20,6 +20,8 @@ void enterRawMode() {
 	struct termios orig_copy = orig;
 	
 	// Turn off:
+	
+	//Try cfmakeraw() to set all flags at once
 	orig_copy.c_lflag &= ~(ECHO);
 	orig_copy.c_lflag &= ~(ICANON); // canonical mode 
 	orig_copy.c_lflag &= ~(ISIG); // ctrl-c, ctrl-z
