@@ -4,29 +4,37 @@
 #include <termios.h>
 #include <ctype.h>
 #include <errno.h>
-
 #include "errorHandler.h"
 #include "modeChanger.h"
-#include "ctrl_q.h"
+#include "keyProcessing.h"
+
+#define ctrl_key(k) ((k) & 0x1f)
 
 // STEPS: 
 // 1. Enter Raw Mode -- DONE!
 // 2. Handle Raw I/O
 // 3. Create Text Viewer Window/Screen
 // 4. Create the editor (main features)
+void drawEditor() {
+  int counter;
+  for (counter=0; counter<24; counter++) {
+    write(STDOUT_FILENO, ">\r\n", 3);
+  }
+}
+
+
+void setTerminal() {
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 3);
+  drawEditor();
+  write(STDOUT_FILENO, "\x1b[H", 3);
+}
 
 int main(int argc, char *argv[]){
 	enterRawMode();
 	while (1) {
-		char ch = '\0';
-		if (read(STDIN_FILENO, &ch, 1) == -1 && errno != EAGAIN) 		throwErrorMsg("read not working in main loop");
-		
-		if (iscntrl(ch)) printf("%d\r\n", ch);
-		else printf("%d ('%c')\r\n", ch, ch);
-    
-		if (ch == 'q') break;
+		setTerminal();
+		keypressEditor();
 	}
-
-	
 	return 0;
 }
