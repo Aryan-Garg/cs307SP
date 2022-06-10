@@ -7,6 +7,7 @@
 
 #include "errorHandler.h"
 #include "modeChanger.h"
+#include "ctrl_q.h"
 
 // STEPS: 
 // 1. Enter Raw Mode -- DONE!
