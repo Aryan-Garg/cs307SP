@@ -27,6 +27,10 @@ void enterRawMode() {
 	orig_copy.c_lflag &= ~(ISIG); // ctrl-c, ctrl-z
 	orig_copy.c_lflag &= ~(ICRNL); // carriage return -> report
 	orig_copy.c_oflag &= ~(OPOST); // output processing -> report
+	orig_copy.c_iflag &= ~(BRKINT | INPCK | ISTRIP | IXON | IEXTEN);
+	orig_copy.c_cflag |= (CS8);
+	orig_copy.c_cc[VMIN] = 0;
+    orig_copy.c_cc[VTIME] = 1;
 	
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_copy) == -1) 
 		throwErrorMsg("tcsetattr");
