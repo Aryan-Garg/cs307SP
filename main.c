@@ -7,6 +7,7 @@
 #include "errorHandler.h"
 #include "modeChanger.h"
 #include "keyProcessing.h"
+#include "editorSpecs.h"
 
 #define ctrl_key(k) ((k) & 0x1f)
 
@@ -15,6 +16,20 @@
 // 2. Handle Raw I/O
 // 3. Create Text Viewer Window/Screen
 // 4. Create the editor (main features)
+
+struct EditorData{
+	int number_of_rows, number_of_cols;
+	struct termios orig;
+};
+struct EditorData editor;
+
+void init(){
+	int status = findWinSz(&editor.number_of_rows,&editor.number_of_cols);
+	if(status==-1){
+		throwErrorMsg("findWinSz");
+	}
+}
+
 void drawEditor() {
   int counter;
   for (counter=0; counter<24; counter++) {
@@ -32,6 +47,7 @@ void setTerminal() {
 
 int main(int argc, char *argv[]){
 	enterRawMode();
+	init();
 	while (1) {
 		setTerminal();
 		keypressEditor();
