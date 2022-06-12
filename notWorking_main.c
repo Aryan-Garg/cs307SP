@@ -21,10 +21,17 @@
 // 3. Create Text Viewer Window/Screen
 // 4. Create the editor (main features)
 
+typedef struct editor_row {
+  int len;
+  char *chars;
+} editor_row;
+
+
 struct EditorData{
 	int curs_x, curs_y;
 	int number_of_rows, number_of_cols;
 	struct termios orig;
+	editor_row *erow;
 };
 struct EditorData editor;
 
@@ -49,6 +56,7 @@ void appendBuffer_free(struct appendBuffer *ab2) {
 void init(){
 	editor.curs_x = 0;
 	editor.curs_y = 0;
+    editor.erow = NULL;
 	int status = findWinSz(&editor.number_of_rows,&editor.number_of_cols);
 	if(status==-1){
 		throwErrorMsg("findWinSz");
@@ -86,10 +94,35 @@ void setTerminal() {
   write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
+void appendToEditor(char *s, size_t len) {
+  editor.erow = realloc(E.row, sizeof(erow) * (editor.typedrows + 1));
+  int app_index = editor.typedrows;
+  editor.erow[app_index].size = len;
+  editor.erow[app_index].chars = malloc(len + 1);
+  memcpy(editor.erow[app_index].chars, s, len);
+  editor.erow[app_index].chars[len] = '\0';
+  editor.typedrows++;
+}
+
+void openfile(char *fname) {
+  FILE *file = fopen(fname, "r");
+  if (!file) throwErrorMsg("fopen");
+  char *line = NULL;
+  size_t line_capacity = 0;
+  ssize_t length;
+  while ((length = getline(&line, &line_capacity, fp)) != -1) {
+    while (length > 0 && (line[length - 1] == '\n' || line[length - 1] == '\r')) length--;
+    appendToEditor(line, length);
+  }
+  free(line);
+  fclose(file);
+}
 
 int main(int argc, char *argv[]){
 	enterRawMode();
 	init();
+	if (argc>1) openfile(argv[1]);
+	
 	while (1) {
 		setTerminal();
 		keypressEditor();
