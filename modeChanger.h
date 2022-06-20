@@ -1,0 +1,2 @@
+void quitRawMode();
+void enterRawMode();

@@ -1,0 +1,1 @@
+int findCursor(int *rows, int *cols);

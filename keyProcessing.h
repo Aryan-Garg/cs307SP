@@ -1,0 +1,2 @@
+char keyRead();
+void keypressEditor();
